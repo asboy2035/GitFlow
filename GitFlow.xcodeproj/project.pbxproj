@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5E3D6CC62D6E421A00B7C707 /* DynamicNotchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 5E3D6CC52D6E421A00B7C707 /* DynamicNotchKit */; };
 		5EC33DA12D6DFA21005BF072 /* Luminare in Frameworks */ = {isa = PBXBuildFile; productRef = 5EC33DA02D6DFA21005BF072 /* Luminare */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E3D6CC62D6E421A00B7C707 /* DynamicNotchKit in Frameworks */,
 				5EC33DA12D6DFA21005BF072 /* Luminare in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -126,6 +128,7 @@
 			name = GitFlow;
 			packageProductDependencies = (
 				5EC33DA02D6DFA21005BF072 /* Luminare */,
+				5E3D6CC52D6E421A00B7C707 /* DynamicNotchKit */,
 			);
 			productName = GitFlow;
 			productReference = 5EC33D322D6DC01B005BF072 /* GitFlow.app */;
@@ -211,6 +214,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5EC33D9E2D6DF9FA005BF072 /* XCRemoteSwiftPackageReference "Luminare-Safe" */,
+				5E3D6CC42D6E421A00B7C707 /* XCRemoteSwiftPackageReference "DynamicNotchKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5EC33D332D6DC01B005BF072 /* Products */;
@@ -570,6 +574,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5E3D6CC42D6E421A00B7C707 /* XCRemoteSwiftPackageReference "DynamicNotchKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MrKai77/DynamicNotchKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		5EC33D9E2D6DF9FA005BF072 /* XCRemoteSwiftPackageReference "Luminare-Safe" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/asboy2035/Luminare-Safe";
@@ -581,6 +593,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5E3D6CC52D6E421A00B7C707 /* DynamicNotchKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E3D6CC42D6E421A00B7C707 /* XCRemoteSwiftPackageReference "DynamicNotchKit" */;
+			productName = DynamicNotchKit;
+		};
 		5EC33DA02D6DFA21005BF072 /* Luminare */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5EC33D9E2D6DF9FA005BF072 /* XCRemoteSwiftPackageReference "Luminare-Safe" */;

@@ -55,7 +55,7 @@ struct RepositoryView: View {
                 Button(action: {
                     showingStashSheet = true
                 }) {
-                    Label("Stash", systemImage: "square.and.arrow.down")
+                    Label("Stash", systemImage: "square.and.arrow.up")
                 }
             }
             

@@ -52,13 +52,13 @@ struct ContentView: View {
                 .frame(height: 30)
             }
             .padding(.top, 40)
-            .frame(minWidth: 250, maxWidth: 300)
+            .frame(width: 300)
             .toolbar {
                 ToolbarItem(placement: .navigation) {
                     Button(action: {
                         showingOpenPanel = true
                     }) {
-                        Label("Open", systemImage: "document")
+                        Label("Open", systemImage: "folder")
                     }
                 }
                 
@@ -92,14 +92,15 @@ struct ContentView: View {
                 if let repo = gitManager.currentRepository, repo.isOperationInProgress {
                     VStack {
                         ProgressView()
-                            .scaleEffect(1.5)
                         Text(repo.currentOperation)
-                            .padding()
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
                             .background(.background.opacity(0.8))
                             .cornerRadius(8)
+                            .padding()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.2))
+                    .background(VisualEffectView(material: .hudWindow, blendingMode: .withinWindow))
                 }
             }
         }
@@ -108,13 +109,13 @@ struct ContentView: View {
             gitManager.loadSavedRepositories()
         }
         .background(VisualEffectView(material: .sidebar, blendingMode: .behindWindow)).ignoresSafeArea()
-        .sheet(isPresented: $showingCloneSheet) {
+        .luminareModal(isPresented: $showingCloneSheet, closeOnDefocus: true) {
             CloneRepositoryView()
         }
-        .sheet(isPresented: $showingCreateSheet) {
+        .luminareModal(isPresented: $showingCreateSheet, closeOnDefocus: true) {
             CreateRepositoryView()
         }
-        .sheet(isPresented: $showingStatusWindow) {
+        .luminareModal(isPresented: $showingStatusWindow, closeOnDefocus: true) {
             StatusLogView()
                 .environmentObject(gitManager)
         }

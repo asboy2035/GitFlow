@@ -1,6 +1,15 @@
 {
-  "originHash" : "23793816994bda6a48fe63ca8bd1db406bc72ff25eb5607f2d6d34ae44461892",
+  "originHash" : "42bbbbead412b7b52832f453aa33064cff12cc21afa308963247905e177fb580",
   "pins" : [
+    {
+      "identity" : "dynamicnotchkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MrKai77/DynamicNotchKit",
+      "state" : {
+        "branch" : "main",
+        "revision" : "0f2213c671585db887f53e86812134a7a6cc74e5"
+      }
+    },
     {
       "identity" : "luminare-safe",
       "kind" : "remoteSourceControl",

@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import DynamicNotchKit
+import SwiftUICore
 
 class GitRepositoryManager: ObservableObject {
     @Published var currentRepository: GitRepository? {
@@ -86,6 +88,21 @@ class GitRepositoryManager: ObservableObject {
             addStatusMessage("Error executing git: \(error.localizedDescription)", isError: true)
         }
         
+        let notch:DynamicNotchInfo = DynamicNotchInfo(
+            icon: Image(systemName: "arrow.down.circle"),
+            title: NSLocalizedString(
+                "Clones",
+                comment: "Cloned"
+            ),
+            description: NSLocalizedString(
+                "Cloned Succesfully!",
+                comment: "Content of git clone noti"
+            ),
+            iconColor: .accentColor,
+            textColor: .primary,
+            style: .floating
+        )
+        notch.show(for: 2)
         isLoading = false
     }
     
@@ -420,6 +437,21 @@ class GitRepository: ObservableObject, Identifiable {
     func pull() {
         executeGitOperationAsync(operation: "Pull", arguments: ["pull"]) { [weak self] _ in
             self?.refreshStatus()
+            let notch:DynamicNotchInfo = DynamicNotchInfo(
+                icon: Image(systemName: "arrowshape.turn.up.left"),
+                title: NSLocalizedString(
+                    "Pulled",
+                    comment: "Pulled"
+                ),
+                description: NSLocalizedString(
+                    "Pulled Succesfully!",
+                    comment: "Content of git pull noti"
+                ),
+                iconColor: .accentColor,
+                textColor: .primary,
+                style: .floating
+            )
+            notch.show(for: 2)
         }
     }
     
@@ -431,6 +463,22 @@ class GitRepository: ObservableObject, Identifiable {
         
         executeGitOperationAsync(operation: "Push", arguments: args) { [weak self] _ in
             self?.refreshStatus()
+            
+            let notch:DynamicNotchInfo = DynamicNotchInfo(
+                icon: Image(systemName: "arrowshape.turn.up.right"),
+                title: NSLocalizedString(
+                    "Pushed",
+                    comment: "Pushed"
+                ),
+                description: NSLocalizedString(
+                    "Pushed Succesfully!",
+                    comment: "Content of git push noti"
+                ),
+                iconColor: .accentColor,
+                textColor: .primary,
+                style: .floating
+            )
+            notch.show(for: 2)
         }
     }
     

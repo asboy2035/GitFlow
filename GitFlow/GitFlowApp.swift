@@ -12,7 +12,7 @@ struct GitFlowApp: App {
     var body: some Scene {
         Window("ContentView", id: "main") {
             ContentView()
-                .frame(minWidth: 100, minHeight: 600)
+                .frame(minWidth: 1000, minHeight: 600)
                 .environmentObject(GitRepositoryManager())
                 .onAppear {
                     if let window = NSApplication.shared.windows.first {
@@ -26,5 +26,6 @@ struct GitFlowApp: App {
                     }
                 }
         }
+        .windowResizability(.contentSize)
     }
 }
