@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5EC33DA12D6DFA21005BF072 /* Luminare in Frameworks */ = {isa = PBXBuildFile; productRef = 5EC33DA02D6DFA21005BF072 /* Luminare */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		5EC33D442D6DC01C005BF072 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5EC33DA12D6DFA21005BF072 /* Luminare in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 				5EC33D342D6DC01B005BF072 /* GitFlow */,
 				5EC33D462D6DC01C005BF072 /* GitFlowTests */,
 				5EC33D502D6DC01C005BF072 /* GitFlowUITests */,
+				5EC33D9F2D6DFA21005BF072 /* Frameworks */,
 				5EC33D332D6DC01B005BF072 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +96,13 @@
 				5EC33D4D2D6DC01C005BF072 /* GitFlowUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5EC33D9F2D6DFA21005BF072 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -112,6 +125,7 @@
 			);
 			name = GitFlow;
 			packageProductDependencies = (
+				5EC33DA02D6DFA21005BF072 /* Luminare */,
 			);
 			productName = GitFlow;
 			productReference = 5EC33D322D6DC01B005BF072 /* GitFlow.app */;
@@ -195,6 +209,9 @@
 			);
 			mainGroup = 5EC33D292D6DC01B005BF072;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5EC33D9E2D6DF9FA005BF072 /* XCRemoteSwiftPackageReference "Luminare-Safe" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5EC33D332D6DC01B005BF072 /* Products */;
 			projectDirPath = "";
@@ -406,6 +423,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ash.GitFlow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -433,6 +451,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ash.GitFlow;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -549,6 +568,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5EC33D9E2D6DF9FA005BF072 /* XCRemoteSwiftPackageReference "Luminare-Safe" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/asboy2035/Luminare-Safe";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5EC33DA02D6DFA21005BF072 /* Luminare */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5EC33D9E2D6DF9FA005BF072 /* XCRemoteSwiftPackageReference "Luminare-Safe" */;
+			productName = Luminare;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5EC33D2A2D6DC01B005BF072 /* Project object */;
 }
