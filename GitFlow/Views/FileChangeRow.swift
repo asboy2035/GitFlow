@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Luminare
 
 struct FileChangeRow: View {
     let change: GitFileChange
@@ -33,16 +34,23 @@ struct FileChangeRow: View {
                 Image(systemName: "doc.text.magnifyingglass")
                     .foregroundStyle(.foreground)
             }
+            .help("Diff")
             .buttonStyle(.borderless)
             
             Button(action: action) {
-                Text(change.staged ? "Unstage" : "Stage")
+                Label(
+                    change.staged ? "Unstage" : "Stage",
+                    systemImage: change.staged ? "xmark" : "checkmark"
+                )
             }
+            .frame(width: 100)
+            .buttonStyle(LuminareCompactButtonStyle())
             
             Button(action: discard) {
                 Image(systemName: "trash")
                     .foregroundColor(.red)
             }
+            .help("Discard")
             .buttonStyle(.borderless)
         }
     }

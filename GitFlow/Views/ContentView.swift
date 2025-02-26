@@ -53,32 +53,6 @@ struct ContentView: View {
             }
             .padding(.top, 40)
             .frame(width: 300)
-            .toolbar {
-                ToolbarItem(placement: .navigation) {
-                    Button(action: {
-                        showingOpenPanel = true
-                    }) {
-                        Label("Open", systemImage: "folder")
-                    }
-                }
-                
-                ToolbarItem(placement: .navigation) {
-                    Button(action: {
-                        showingCloneSheet = true
-                    }) {
-                        Label("Clone", systemImage: "arrow.down.circle")
-                    }
-                }
-                
-                ToolbarItem(placement: .navigation) {
-                    Button(action: {
-                        showingCreateSheet = true
-                    }) {
-                        Label("Create", systemImage: "square.and.pencil")
-                    }
-                }
-            }
-            
             Divider()
             ZStack {
                 if let repo = gitManager.currentRepository {
@@ -104,13 +78,38 @@ struct ContentView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button(action: {
+                    showingOpenPanel = true
+                }) {
+                    Label("Open", systemImage: "folder")
+                }
+            }
+            
+            ToolbarItem(placement: .navigation) {
+                Button(action: {
+                    showingCloneSheet = true
+                }) {
+                    Label("Clone", systemImage: "arrow.down.circle")
+                }
+            }
+            
+            ToolbarItem(placement: .navigation) {
+                Button(action: {
+                    showingCreateSheet = true
+                }) {
+                    Label("Create", systemImage: "square.and.pencil")
+                }
+            }
+        }
         .navigationTitle("GitFlow")
         .onAppear() {
             gitManager.loadSavedRepositories()
         }
         .background(VisualEffectView(material: .sidebar, blendingMode: .behindWindow)).ignoresSafeArea()
         .luminareModal(isPresented: $showingCloneSheet, closeOnDefocus: true) {
-            CloneRepositoryView()
+            CloneRepositoryView(gitManager: gitManager)
         }
         .luminareModal(isPresented: $showingCreateSheet, closeOnDefocus: true) {
             CreateRepositoryView()

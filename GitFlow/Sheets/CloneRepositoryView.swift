@@ -9,7 +9,7 @@ import SwiftUI
 import Luminare
 
 struct CloneRepositoryView: View {
-    @EnvironmentObject var gitManager: GitRepositoryManager
+    @ObservedObject var gitManager: GitRepositoryManager
     @Environment(\.presentationMode) var presentationMode
     
     @State private var repoURL = ""

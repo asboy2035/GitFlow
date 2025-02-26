@@ -23,14 +23,8 @@ struct RepositoryView: View {
     var body: some View {
         VStack(spacing: 12) {
             RepositoryHeaderView(repository: repository)
-            
             CommitActionsView(commitMessage: $commitMessage, showingNewBranchSheet: $showingNewBranchSheet, repository: repository)
-            
             RepositoryTabView(selectedTab: $selectedTab, repository: repository, selectedFileForDiff: $selectedFileForDiff)
-            
-            if let selectedFile = selectedFileForDiff {
-                DiffView(repository: repository, selectedFile: selectedFile)
-            }
         }
         .toolbar {
             ToolbarItem(placement: .automatic) {
@@ -40,6 +34,7 @@ struct RepositoryView: View {
                 }) {
                     Label("Pull", systemImage: "arrowshape.turn.up.left")
                 }
+                .help("Pull")
             }
             
             ToolbarItem(placement: .automatic) {
@@ -49,6 +44,7 @@ struct RepositoryView: View {
                 }) {
                     Label("Push", systemImage: "arrowshape.turn.up.right")
                 }
+                .help("Push")
             }
             
             ToolbarItem(placement: .automatic) {
@@ -57,6 +53,7 @@ struct RepositoryView: View {
                 }) {
                     Label("Stash", systemImage: "square.and.arrow.up")
                 }
+                .help("Stash")
             }
             
             ToolbarItem(placement: .automatic) {
@@ -65,12 +62,13 @@ struct RepositoryView: View {
                 }) {
                     Label("Refresh", systemImage: "arrow.trianglehead.2.clockwise")
                 }
+                .help("Refresh")
             }
         }
-        .sheet(isPresented: $showingNewBranchSheet) {
+        .luminareModal(isPresented: $showingNewBranchSheet, closeOnDefocus: true) {
             NewBranchSheetView(newBranchName: $newBranchName, showingNewBranchSheet: $showingNewBranchSheet, repository: repository)
         }
-        .sheet(isPresented: $showingStashSheet) {
+        .luminareModal(isPresented: $showingStashSheet, closeOnDefocus: true) {
             StashSheetView(stashMessage: $stashMessage, showingStashSheet: $showingStashSheet, repository: repository)
         }
     }
@@ -115,23 +113,29 @@ struct CommitActionsView: View {
                 LuminareTextField("Commit message", text: $commitMessage)
                 
                 HStack(spacing: 2) {
-                    Button("Commit") {
+                    Button(action: {
                         if !commitMessage.isEmpty {
                             repository.commit(message: commitMessage)
                             commitMessage = ""
                             repository.refreshStatus()
                         }
+                    }) {
+                        Label("Commit", systemImage: "paperplane")
                     }
                     .background(Color.accentColor.opacity(0.2))
                     .disabled(commitMessage.isEmpty)
                     
-                    Button("Stage All") {
+                    Button(action: {
                         repository.stageAllFiles()
                         repository.refreshStatus()
+                    }) {
+                        Label("Stage All", systemImage: "checkmark")
                     }
                     
-                    Button("New Branch") {
+                    Button(action: {
                         showingNewBranchSheet = true
+                    }) {
+                        Label("New Branch", systemImage: "arrow.trianglehead.branch")
                     }
                 }
                 .buttonStyle(LuminareButtonStyle())
@@ -186,21 +190,25 @@ struct RepositoryTabView: View {
                 .frame(height: 35)
                 .buttonStyle(LuminareButtonStyle())
                 
-                switch (currentTab) {
-                case "Commits":
-                    CommitsView(repository: repository)
-                case "Branches":
-                    BranchesTabView(repository: repository)
-                case "Remotes":
-                    RemotesTabView(repository: repository)
-                case "Stashes":
-                    StashesTabView(repository: repository)
-                default:
-                    ChangesTabView(repository: repository, selectedFileForDiff: $selectedFileForDiff)
+                VStack {
+                    switch (currentTab) {
+                    case "Commits":
+                        CommitsView(repository: repository)
+                    case "Branches":
+                        BranchesTabView(repository: repository)
+                    case "Remotes":
+                        RemotesTabView(repository: repository)
+                    case "Stashes":
+                        StashesTabView(repository: repository)
+                    default:
+                        ChangesTabView(repository: repository, selectedFileForDiff: $selectedFileForDiff)
+                    }
                 }
+                .padding(8)
             }
         }
-        .listStyle(.sidebar)
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .padding()
     }
 }
@@ -211,44 +219,51 @@ struct ChangesTabView: View {
 
     var body: some View {
         VStack {
-            List {
-                Section(header: Text("Staged Changes")) {
-                    ForEach(repository.changes.filter { $0.staged }) { change in
-                        FileChangeRow(change: change) {
-                            repository.unstageFile(path: change.path)
-                            repository.refreshStatus()
-                        } viewDiff: {
-                            selectedFileForDiff = change
-                        } discard: {
-                            repository.discardChanges(file: change.path)
-                            repository.refreshStatus()
+            if let fileForDiff = selectedFileForDiff {
+                DiffView(repository: repository, selectedFile: fileForDiff, onClose: {
+                    selectedFileForDiff = nil
+                })
+            } else {
+                ScrollView {
+                    LuminareSection("Staged Changes") {
+                        ForEach(repository.changes.filter { $0.staged }) { change in
+                            FileChangeRow(change: change) {
+                                repository.unstageFile(path: change.path)
+                                repository.refreshStatus()
+                            } viewDiff: {
+                                selectedFileForDiff = change
+                            } discard: {
+                                repository.discardChanges(file: change.path)
+                                repository.refreshStatus()
+                            }
+                            .padding(4)
+                        }
+
+                        if repository.changes.filter({ $0.staged }).isEmpty {
+                            Text("No staged changes")
+                                .foregroundColor(.secondary)
+                                .padding()
                         }
                     }
 
-                    if repository.changes.filter({ $0.staged }).isEmpty {
-                        Text("No staged changes")
-                            .foregroundColor(.secondary)
-                            .padding()
-                    }
-                }
-
-                Section(header: Text("Unstaged Changes")) {
-                    ForEach(repository.changes.filter { !$0.staged }) { change in
-                        FileChangeRow(change: change) {
-                            repository.stageFile(path: change.path)
-                            repository.refreshStatus()
-                        } viewDiff: {
-                            selectedFileForDiff = change
-                        } discard: {
-                            repository.discardChanges(file: change.path)
-                            repository.refreshStatus()
+                    LuminareSection("Unstaged Changes") {
+                        ForEach(repository.changes.filter { !$0.staged }) { change in
+                            FileChangeRow(change: change) {
+                                repository.stageFile(path: change.path)
+                                repository.refreshStatus()
+                            } viewDiff: {
+                                selectedFileForDiff = change
+                            } discard: {
+                                repository.discardChanges(file: change.path)
+                                repository.refreshStatus()
+                            }
                         }
-                    }
 
-                    if repository.changes.filter({ !$0.staged }).isEmpty {
-                        Text("No unstaged changes")
-                            .foregroundColor(.secondary)
-                            .padding()
+                        if repository.changes.filter({ !$0.staged }).isEmpty {
+                            Text("No unstaged changes")
+                                .foregroundColor(.secondary)
+                                .padding()
+                        }
                     }
                 }
             }
@@ -277,8 +292,11 @@ struct CommitsView: View {
                     NSPasteboard.general.setString(commit.hash, forType: .string)
                 }) {
                     Label("Copy Hash", systemImage: "doc.on.doc")
+                        .foregroundStyle(.primary)
                         .padding(.vertical, 6)
                 }
+                .buttonStyle(LuminareCompactButtonStyle())
+                .frame(width: 150)
             }
         }
         .onAppear {
@@ -295,46 +313,52 @@ struct BranchesTabView: View {
     var repository: GitRepository
 
     var body: some View {
-        VStack {
-            List {
-                Section(header: Text("Local Branches")) {
-                    ForEach(repository.branches.filter { !$0.isRemote }) { branch in
-                        HStack {
-                            Text(branch.name)
-                                .fontWeight(branch.isCurrent ? .bold : .regular)
+        ScrollView {
+            LuminareSection("Local Branches") {
+                ForEach(repository.branches.filter { !$0.isRemote }) { branch in
+                    HStack {
+                        Text(branch.name)
+                            .fontWeight(branch.isCurrent ? .bold : .regular)
 
-                            if branch.isCurrent {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.green)
-                            }
-
-                            Spacer()
-
-                            if !branch.isCurrent {
-                                Button("Checkout") {
-                                    repository.checkout(branch: branch.name)
-                                    repository.refreshStatus()
-                                }
-                                .buttonStyle(.bordered)
-                            }
+                        if branch.isCurrent {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.green)
                         }
-                    }
-                }
 
-                Section(header: Text("Remote Branches")) {
-                    ForEach(repository.branches.filter { $0.isRemote }) { branch in
-                        HStack {
-                            Text(branch.name)
+                        Spacer()
 
-                            Spacer()
-
-                            Button("Checkout") {
+                        if !branch.isCurrent {
+                            Button(action: {
                                 repository.checkout(branch: branch.name)
                                 repository.refreshStatus()
+                            }) {
+                                Label("Checkout", systemImage: "magnifyingglass")
                             }
-                            .buttonStyle(.bordered)
+                            .frame(width: 120)
+                            .buttonStyle(LuminareCompactButtonStyle())
                         }
                     }
+                    .padding(4)
+                }
+            }
+
+            LuminareSection("Remote Branches") {
+                ForEach(repository.branches.filter { $0.isRemote }) { branch in
+                    HStack {
+                        Text(branch.name)
+
+                        Spacer()
+
+                        Button(action: {
+                            repository.checkout(branch: branch.name)
+                            repository.refreshStatus()
+                        }) {
+                            Label("Checkout", systemImage: "magnifyingglass")
+                        }
+                        .frame(width: 120)
+                        .buttonStyle(LuminareCompactButtonStyle())
+                    }
+                    .padding(4)
                 }
             }
         }
@@ -361,18 +385,25 @@ struct RemotesTabView: View {
 
                         Spacer()
 
-                        Button("Pull") {
+                        Button(action: {
                             repository.pull()
                             repository.refreshStatus()
+                        }) {
+                            Image(systemName: "arrowshape.turn.up.left")
                         }
-                        .buttonStyle(.bordered)
+                        .help("Pull")
+                        .frame(width: 35, height: 35)
 
-                        Button("Push") {
+                        Button(action: {
                             repository.push(remote: remote.name)
                             repository.refreshStatus()
+                        }) {
+                            Image(systemName: "arrowshape.turn.up.right")
                         }
-                        .buttonStyle(.bordered)
+                        .help("Push")
+                        .frame(width: 35, height: 35)
                     }
+                    .buttonStyle(LuminareCompactButtonStyle())
                 }
             }
         }
@@ -413,6 +444,7 @@ struct StashesTabView: View {
 struct DiffView: View {
     var repository: GitRepository
     var selectedFile: GitFileChange
+    let onClose: () -> Void
     
     var body: some View {
         VStack {
@@ -422,22 +454,62 @@ struct DiffView: View {
                 
                 Spacer()
                 
-                Button("Close") {
-                    // Handle close action
+                LuminareSection {
+                    HStack(spacing: 2) {
+                        Button(action: {
+                            openInFileMerge()
+                        }) {
+                            Label("Open in FileMerge", systemImage: "text.page.badge.magnifyingglass")
+                        }
+                        .frame(width: 200)
+                        .disabled(true)
+                        
+                        Button(action: onClose) {
+                            Label("Close", systemImage: "xmark")
+                        }
+                    }
+                    .buttonStyle(LuminareButtonStyle())
                 }
-                .buttonStyle(.bordered)
+                .frame(width: 300, height: 35)
             }
-            .padding()
             
             ScrollView {
-                Text(repository.getFileDiff(file: selectedFile.path))
-                    .font(.system(.body, design: .monospaced))
-                    .padding()
+                VStack(alignment: .leading, spacing: 2) {
+                    let diffLines = repository.getFileDiff(file: selectedFile.path).components(separatedBy: "\n")
+                    
+                    ForEach(diffLines, id: \.self) { line in
+                        Text(line)
+                            .font(.system(.body, design: .monospaced))
+                            .padding(.vertical, 1)
+                            .background(getBackgroundColor(for: line))
+                    }
+                }
             }
-            .frame(height: 300)
-            .background(Color.black.opacity(0.03))
-            .cornerRadius(8)
-            .padding()
+            .frame(minWidth: nil, maxWidth: .infinity, alignment: .leading)
+        }
+        .padding()
+    }
+    
+    private func getBackgroundColor(for line: String) -> Color {
+        if line.hasPrefix("+") {
+            return Color.green.opacity(0.3) // Highlight additions
+        } else if line.hasPrefix("-") {
+            return Color.red.opacity(0.3) // Highlight deletions
+        } else {
+            return Color.clear
+        }
+    }
+    
+    private func openInFileMerge() {
+        let fileURL = URL(fileURLWithPath: repository.path).appendingPathComponent(selectedFile.path)
+        let task = Process()
+        task.launchPath = "/usr/bin/opendiff" // FileMerge command
+        task.arguments = [fileURL.path]
+        
+        do {
+            try task.run()
+        } catch {
+            print("Failed to open FileMerge: \(error)")
         }
     }
 }
@@ -451,31 +523,36 @@ struct NewBranchSheetView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Create New Branch")
-                .font(.headline)
+                .font(.title2)
             
-            TextField("Branch name", text: $newBranchName)
-                .textFieldStyle(.roundedBorder)
-            
-            HStack {
-                Button("Cancel") {
-                    showingNewBranchSheet = false
-                    newBranchName = ""
-                }
-                .buttonStyle(.bordered)
+            LuminareSection {
+                LuminareTextField("Branch name", text: $newBranchName)
                 
-                Button("Create") {
-                    if !newBranchName.isEmpty {
-                        repository.createBranch(name: newBranchName)
-                        repository.refreshStatus()
+                HStack(spacing: 2) {
+                    Button(action: {
                         showingNewBranchSheet = false
                         newBranchName = ""
+                    }) {
+                        Label("Cancel", systemImage: "xmark")
                     }
+                    
+                    Button(action: {
+                        if !newBranchName.isEmpty {
+                            repository.createBranch(name: newBranchName)
+                            repository.refreshStatus()
+                            showingNewBranchSheet = false
+                            newBranchName = ""
+                        }
+                    }) {
+                        Label("Create", systemImage: "square.and.pencil")
+                    }
+                    .background(Color.accentColor.opacity(0.2))
+                    .disabled(newBranchName.isEmpty)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(newBranchName.isEmpty)
+                .buttonStyle(LuminareButtonStyle())
+                .frame(height: 35)
             }
         }
-        .padding()
         .frame(width: 300)
     }
 }
@@ -489,29 +566,35 @@ struct StashSheetView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Create Stash")
-                .font(.headline)
+                .font(.title2)
             
-            TextField("Stash message (optional)", text: $stashMessage)
-                .textFieldStyle(.roundedBorder)
-            
-            HStack {
-                Button("Cancel") {
-                    showingStashSheet = false
-                    stashMessage = ""
-                }
-                .buttonStyle(.bordered)
+            LuminareSection {
+                LuminareTextField("Stash message (optional)", text: $stashMessage)
                 
-                Button("Create Stash") {
-                    if stashMessage.isEmpty {
-                        repository.createStash()
-                    } else {
-                        repository.createStash(message: stashMessage)
+                HStack(spacing: 2) {
+                    Button(action: {
+                        showingStashSheet = false
+                        stashMessage = ""
+                    }) {
+                        Label("Cancel", systemImage: "xmark")
                     }
-                    repository.refreshStatus()
-                    showingStashSheet = false
-                    stashMessage = ""
+                    
+                    Button(action: {
+                        if stashMessage.isEmpty {
+                            repository.createStash()
+                        } else {
+                            repository.createStash(message: stashMessage)
+                        }
+                        repository.refreshStatus()
+                        showingStashSheet = false
+                        stashMessage = ""
+                    }) {
+                        Label("Create Stash", systemImage: "square.and.pencil")
+                    }
+                    .background(Color.accentColor.opacity(0.2))
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(LuminareButtonStyle())
+                .frame(height: 35)
             }
         }
         .padding()
